@@ -1,7 +1,9 @@
-﻿using KASHOP.DAL;
+﻿using KASHOP.BLL.Services;
+using KASHOP.DAL;
 using KASHOP.DAL.Data;
 using KASHOP.DAL.DTO;
 using KASHOP.DAL.Models;
+using KASHOP.DAL.Repository;
 using KASHOP.PL.Resources;
 using Mapster;
 using Microsoft.AspNetCore.Http;
@@ -15,27 +17,25 @@ namespace KASHOP.PL.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
         private readonly IStringLocalizer<SharedResources> _localizer;
-        public CategoriesController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer)
+        private readonly ICategoryService _categoryService;
+        public CategoriesController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, ICategoryService categoryService)
         {
-            _context = context;
             _localizer = localizer;
+            _categoryService = categoryService;
         }
        
         [HttpGet("")]
         public ActionResult Index()
         {
-            var categories = _context.Categories.Include(c => c.Translations).ToList();
-            var response = categories.Adapt<List<CategoryResponse>>();
-            return Ok(new { _localizer["Success"].Value, response });
+            var categories = _categoryService.GetAllCategories();
+            return Ok(new { _localizer["Success"].Value, categories });
         }
         [HttpPost("")]
         public IActionResult Create(CategoryRequest request)
         {
             var category= request.Adapt<Category>();
-            _context.Add(category);
-            _context.SaveChanges();
+            _categoryService.CreateCategory(category);
 
             return Ok(request);
         }
