@@ -26,15 +26,15 @@ namespace KASHOP.PL.Controllers
         }
        
         [HttpGet("")]
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var categories = _categoryService.GetAllCategories();
+            var categories = await _categoryService.GetAllCategoriesAsync();
             return Ok(new { _localizer["Success"].Value, categories });
         }
         [HttpPost("")]
-        public IActionResult Create(CategoryRequest request)
+        public async Task<IActionResult> Create(CategoryRequest request)
         {
-            var response = _categoryService.CreateCategory(request);
+            var response = await _categoryService.CreateCategoryAsync(request);
 
 
             return Ok();
