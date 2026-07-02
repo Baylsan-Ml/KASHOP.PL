@@ -34,10 +34,10 @@ namespace KASHOP.PL.Controllers
         [HttpPost("")]
         public IActionResult Create(CategoryRequest request)
         {
-            var category= request.Adapt<Category>();
-            _categoryService.CreateCategory(category);
+            var response = _categoryService.CreateCategory(request);
 
-            return Ok(request);
+
+            return Ok();
         }
     }
 

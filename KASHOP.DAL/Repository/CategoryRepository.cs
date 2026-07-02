@@ -1,4 +1,5 @@
 ﻿using KASHOP.DAL.Data;
+using KASHOP.DAL.DTO;
 using KASHOP.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
