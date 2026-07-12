@@ -5,6 +5,7 @@ using Mapster;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ namespace KASHOP.BLL.Services
             _categoryRepository=categoryRepository;
         }
 
-        public async Task<CategoryResponse> ICategoryService.CreateCategoryAsync(CategoryRequest request)
+         async Task<CategoryResponse> ICategoryService.CreateCategoryAsync(CategoryRequest request)
         {
             var category = request.Adapt<Category>();
             await _categoryRepository.CreateAsync(category);
@@ -35,6 +36,31 @@ namespace KASHOP.BLL.Services
             var response = categories.Adapt<List<CategoryResponse>>();
 
             return response;
+        }
+
+        public async Task<CategoryResponse> UpdateCategoryAsync(CategoryRequest request)
+        {
+            var category = request.Adapt<Category>();
+            await _categoryRepository.UpdateAsync(category);
+            var response = category.Adapt<CategoryResponse>();
+            return response;
+        }
+
+        public async Task<CategoryResponse> GetCategory(Expression<Func<Category, bool>> filter)
+        {
+            var category = await _categoryRepository.GetOne(filter, new string[] { nameof(Category.Translations) });
+
+            return category.Adapt<CategoryResponse>();
+        }
+
+        public async Task<bool> DeleteCategoryAsync(int id)
+        {
+            var category = await _categoryRepository.GetOne(c => c.Id == id);
+
+            if (category == null)
+                return false;
+
+            return await _categoryRepository.DeleteAsync(category);
         }
     }
 }

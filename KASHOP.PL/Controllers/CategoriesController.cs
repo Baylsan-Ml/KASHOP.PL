@@ -35,8 +35,31 @@ namespace KASHOP.PL.Controllers
         public async Task<IActionResult> Create(CategoryRequest request)
         {
             var response = await _categoryService.CreateCategoryAsync(request);
-
-
+            return Ok();
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var category= await _categoryService.GetCategory(c=>c.Id == id);
+            if (category == null)
+            {
+                return NotFound(new { _localizer["NotFound"].Value });
+            }
+            return Ok(new { _localizer["Success"].Value, category });
+        }
+      
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, CategoryRequest request)
+        {
+            var response = await _categoryService.UpdateCategoryAsync(request);
+            return Ok(new { _localizer["Success"].Value, response });
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var deleted = await _categoryService.DeleteCategoryAsync(id);
+            if (!deleted)
+                return BadRequest();
             return Ok();
         }
     }
