@@ -47,12 +47,17 @@ namespace KASHOP.PL.Controllers
             }
             return Ok(new { _localizer["Success"].Value, category });
         }
-      
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, CategoryRequest request)
+        public async Task<IActionResult> Update(int id, [FromBody] CategoryRequest request)
         {
-            var response = await _categoryService.UpdateCategoryAsync(request);
-            return Ok(new { _localizer["Success"].Value, response });
+            var response = await _categoryService.UpdateCategoryAsync(id, request);
+
+            return Ok(new
+            {
+                Message = _localizer["Success"].Value,
+                Response = response
+            });
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)

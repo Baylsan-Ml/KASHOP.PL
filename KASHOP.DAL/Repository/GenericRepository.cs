@@ -52,11 +52,11 @@ namespace KASHOP.DAL.Repository
             }
             return await query.FirstOrDefaultAsync(filter);
         }
-        public async Task<T> UpdateAsync(T entity)
+        public async Task<Category> UpdateAsync(Category category)
         {
-            _context.Update(entity);
+            _context.Categories.Update(category);
             await _context.SaveChangesAsync();
-            return entity;
+            return category;
         }
 
         public async Task<bool> DeleteAsync(T entity)

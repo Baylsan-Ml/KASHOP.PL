@@ -1,9 +1,10 @@
-﻿using System;
+﻿using KASHOP.DAL.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using System.Linq.Expressions;
 
 namespace KASHOP.DAL.Repository
 {
@@ -12,7 +13,7 @@ namespace KASHOP.DAL.Repository
         Task <List<T>> GetAllAsync(string[]? includes = null);
         Task <T> CreateAsync(T entity);
         Task <T> GetOne(Expression<Func<T,bool>> filter, string[]? includes = null);
-        Task<T> UpdateAsync(T entity);
+        Task<Category> UpdateAsync(Category category);
         Task<bool> DeleteAsync(T entity);
     }
 }

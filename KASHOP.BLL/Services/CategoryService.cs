@@ -37,22 +37,21 @@ namespace KASHOP.BLL.Services
 
             return response;
         }
-
-        public async Task<CategoryResponse> UpdateCategoryAsync(CategoryRequest request)
-        {
-            var category = request.Adapt<Category>();
-            await _categoryRepository.UpdateAsync(category);
-            var response = category.Adapt<CategoryResponse>();
-            return response;
-        }
-
         public async Task<CategoryResponse> GetCategory(Expression<Func<Category, bool>> filter)
         {
             var category = await _categoryRepository.GetOne(filter, new string[] { nameof(Category.Translations) });
 
             return category.Adapt<CategoryResponse>();
         }
+        public async Task<CategoryResponse> UpdateCategoryAsync(int id, CategoryRequest request)
+        {
+            var category = request.Adapt<Category>();
+            category.Id = id;
 
+            var updatedCategory = await _categoryRepository.UpdateAsync(category);
+
+            return updatedCategory.Adapt<CategoryResponse>();
+        }
         public async Task<bool> DeleteCategoryAsync(int id)
         {
             var category = await _categoryRepository.GetOne(c => c.Id == id);

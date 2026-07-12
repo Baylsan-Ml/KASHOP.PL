@@ -14,7 +14,7 @@ namespace KASHOP.BLL.Services
         Task<List<CategoryResponse>>GetAllCategoriesAsync();
         Task<CategoryResponse> CreateCategoryAsync(CategoryRequest request);
         Task<CategoryResponse> GetCategory(Expression<Func<Category, bool>> filter);
-        Task<CategoryResponse> UpdateCategoryAsync(CategoryRequest request);
+        Task<CategoryResponse> UpdateCategoryAsync(int id, CategoryRequest request);
         Task <bool> DeleteCategoryAsync(int id);
     }
 }
