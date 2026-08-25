@@ -6,15 +6,18 @@ using KASHOP.DAL.Models;
 using KASHOP.DAL.Repository;
 using KASHOP.PL.Resources;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using System.Security.Claims;
 
 namespace KASHOP.PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
         private readonly IStringLocalizer<SharedResources> _localizer;
@@ -34,6 +37,7 @@ namespace KASHOP.PL.Controllers
         [HttpPost("")]
         public async Task<IActionResult> Create(CategoryRequest request)
         {
+            var user= User.FindFirstValue(ClaimTypes.NameIdentifier);
             var response = await _categoryService.CreateCategoryAsync(request);
             return Ok();
         }
