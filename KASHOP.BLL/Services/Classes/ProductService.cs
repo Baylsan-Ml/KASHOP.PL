@@ -90,7 +90,7 @@ namespace KASHOP.BLL.Services.Classes
             }
         }
 
-        public async Task<Result<ProductResponse>> GetProduct(Expression<Func<Product, bool>> filter)
+        public async Task<Result<ProductResponse>> GetProductAsyns(Expression<Func<Product, bool>> filter)
         {
             try
             {
