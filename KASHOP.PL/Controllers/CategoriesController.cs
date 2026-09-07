@@ -1,4 +1,4 @@
-﻿using KASHOP.BLL.Services;
+﻿using KASHOP.BLL.Services.Interfaces;
 using KASHOP.DAL;
 using KASHOP.DAL.Data;
 using KASHOP.DAL.DTO;
@@ -27,49 +27,42 @@ namespace KASHOP.PL.Controllers
             _localizer = localizer;
             _categoryService = categoryService;
         }
-       
+
         [HttpGet("")]
         public async Task<ActionResult> Index()
         {
-            var categories = await _categoryService.GetAllCategoriesAsync();
-            return Ok(new { _localizer["Success"].Value, categories });
+            //var lang = Request.Headers["Accept-Language"].ToString();
+            var result = await _categoryService.GetAllCategoriesAsync();
+            return result.Success ? Ok(result) : BadRequest(result);
         }
         [HttpPost("")]
         public async Task<IActionResult> Create(CategoryRequest request)
         {
-            var user= User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _categoryService.CreateCategoryAsync(request);
-            return Ok();
+            var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _categoryService.CreateCategoryAsync(request);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var category= await _categoryService.GetCategory(c=>c.Id == id);
-            if (category == null)
-            {
-                return NotFound(new { _localizer["NotFound"].Value });
-            }
-            return Ok(new { _localizer["Success"].Value, category });
+            var result = await _categoryService.GetCategory(c => c.Id == id);
+
+            return result.Success ? Ok(result) : NotFound(result);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] CategoryRequest request)
         {
-            var response = await _categoryService.UpdateCategoryAsync(id, request);
-
-            return Ok(new
-            {
-                Message = _localizer["Success"].Value,
-                Response = response
-            });
+            var result = await _categoryService.UpdateCategoryAsync(id, request);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _categoryService.DeleteCategoryAsync(id);
-            if (!deleted)
-                return BadRequest();
-            return Ok();
+            var result = await _categoryService.DeleteCategoryAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+
         }
     }
 

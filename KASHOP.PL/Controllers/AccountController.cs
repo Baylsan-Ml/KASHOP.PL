@@ -1,4 +1,4 @@
-﻿using KASHOP.BLL.Services;
+﻿using KASHOP.BLL.Services.Interfaces;
 using KASHOP.DAL.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +31,7 @@ namespace KASHOP.PL.Controllers
         public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailRequest request)
         {
             var result = await _AuthenticationService.ConfirnmEmail(request);
-            if (!result) return BadRequest();
+            if (result == null) return BadRequest();
             return Ok("Email confirmed successfully.");
         }
     }

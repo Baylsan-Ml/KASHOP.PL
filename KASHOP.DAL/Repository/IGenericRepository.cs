@@ -13,7 +13,7 @@ namespace KASHOP.DAL.Repository
         Task <List<T>> GetAllAsync(string[]? includes = null);
         Task <T> CreateAsync(T entity);
         Task <T> GetOne(Expression<Func<T,bool>> filter, string[]? includes = null);
-        Task<Category> UpdateAsync(Category category);
+        Task<T> UpdateAsync(T entity);
         Task<bool> DeleteAsync(T entity);
     }
 }

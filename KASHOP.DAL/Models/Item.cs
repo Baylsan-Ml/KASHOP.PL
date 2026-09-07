@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KASHOP.DAL.DTO
+namespace KASHOP.DAL.Models
 {
-    public class LoginResponse
+    public class Item
     {
-        public string AccessToken { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }
