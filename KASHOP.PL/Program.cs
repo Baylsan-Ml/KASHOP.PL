@@ -30,6 +30,7 @@ namespace KASHOP.PL
             builder.Services.AddServicesExtentions(builder.Configuration);
 
             var app = builder.Build();
+            app.UseExceptionHandler();
             app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
 
             MapsterConfig.MapsterConfigRegister();
@@ -39,6 +40,7 @@ namespace KASHOP.PL
                 app.MapOpenApi();
             }
 
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

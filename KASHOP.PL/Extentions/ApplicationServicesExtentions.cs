@@ -10,8 +10,8 @@ namespace KASHOP.PL.Extentions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection Services)
         {
-            Services.AddScoped<ICategoryRepository, CategoryRepository>();
-            Services.AddScoped<IProductRepository, ProductRepository>();
+            Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            Services.AddExceptionHandler<GlobalExeptionHandler>();
             Services.AddScoped<ICategoryService, CategoryService>();
             Services.AddScoped<IProductService, ProductService>();
             Services.AddScoped<IFileService, FileService>();

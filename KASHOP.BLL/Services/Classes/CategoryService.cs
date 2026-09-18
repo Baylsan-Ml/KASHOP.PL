@@ -15,40 +15,29 @@ namespace KASHOP.BLL.Services.Classes
 {
     public class CategoryService : ICategoryService
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        public CategoryService(IUnitOfWork unitOfWork) {
 
-        public CategoryService(ICategoryRepository categoryRepository) {
-
-            _categoryRepository=categoryRepository;
+            _unitOfWork = unitOfWork;
         }
 
          public async Task<Result<CategoryResponse>> CreateCategoryAsync(CategoryRequest request)
         {
-            try
-            {
                 var category = request.Adapt<Category>();
-                await _categoryRepository.CreateAsync(category);
+                await _unitOfWork.CategoryRepository.CreateAsync(category);
+            await _unitOfWork.CompleteAsync();
                 return new Result<CategoryResponse>
                 {
                     Success = true,
                     Message = "Success",
                 };
-            }catch (Exception ex) 
-            {
-                return new Result<CategoryResponse>
-                {
-                    Success = false,
-                    Message = ex.InnerException.Message,
-                };
-            }
         }
 
         public async Task<Result<List<CategoryResponse>>> GetAllCategoriesAsync()
         {
-            try
-            {
+
                 var lang = CultureInfo.CurrentUICulture.Name;
-                var categories = await _categoryRepository.GetAllAsync(
+                var categories = await _unitOfWork.CategoryRepository.GetAllAsync(
                     new string[] { nameof(Category.Translations), "CreatedBy" }
                     );
                 return new Result<List<CategoryResponse>> {
@@ -56,19 +45,10 @@ namespace KASHOP.BLL.Services.Classes
                     Message = "Success",
                     Data = categories.Adapt<List<CategoryResponse>>()
                 };
-            } catch (Exception ex) {
-                return new Result<List<CategoryResponse>>
-                {
-                    Success = false,
-                    Message = ex.InnerException.Message,
-                };
-            }
         }
         public async Task<Result<CategoryResponse>> GetCategory(Expression<Func<Category, bool>> filter)
         {
-            try
-            {
-                var category = await _categoryRepository.GetOne(filter, new string[] { nameof(Category.Translations) });
+                var category = await _unitOfWork.CategoryRepository.GetOne(filter, new string[] { nameof(Category.Translations) });
                 if (category == null)
                 {
                     return new Result<CategoryResponse>()
@@ -83,44 +63,24 @@ namespace KASHOP.BLL.Services.Classes
                     Message = "Success",
                     Data = category.Adapt<CategoryResponse>()
                 };
-
-            }catch (Exception ex)
-            {
-                return new Result<CategoryResponse>()
-                {
-                    Success = false,
-                    Message = ex.InnerException.Message
-                };
-            }
         }
         public async Task<Result<CategoryResponse>> UpdateCategoryAsync(int id, CategoryRequest request)
         {
-            try
-            {
                 var category = request.Adapt<Category>();
                 category.Id = id;
-                var updatedCategory = await _categoryRepository.UpdateAsync(category);
+                var updatedCategory = await _unitOfWork.CategoryRepository.UpdateAsync(category);
                 return new Result<CategoryResponse>()
                 {
                     Success = true,
                     Message = "Success",
                     Data = updatedCategory.Adapt<CategoryResponse>()
                 };
-            }
-            catch (Exception ex)
-            {
-                return new Result<CategoryResponse>()
-                {
-                    Success = false,
-                    Message = ex.InnerException.Message,
-                };
-            }
+           
         }
         public async Task<Result<bool>> DeleteCategoryAsync(int id)
         {
-            try
-            {
-                var category = await _categoryRepository.GetOne(c => c.Id == id);
+            
+                var category = await _unitOfWork.CategoryRepository.GetOne(c => c.Id == id);
 
                 if (category == null)
                 {
@@ -131,24 +91,13 @@ namespace KASHOP.BLL.Services.Classes
                         Data = false
                     };
                 }
-                var Deleted = await _categoryRepository.DeleteAsync(category);
+                 _unitOfWork.CategoryRepository.Delete(category);
+                  var affectedRows = await _unitOfWork.CompleteAsync();
                 return new Result<bool>
                 {
-                    Success = Deleted,
-                    Message = Deleted? "Success": "Failed to Delete Category",
-                    Data = Deleted
+                    Success = affectedRows > 0,
+                    Message = affectedRows > 0 ? "Success": "Failed to Delete Category",
                 };
-            }
-            catch (Exception ex) 
-            {
-                return new Result<bool>
-                {
-                    Success = false,
-                    Message = ex.InnerException.Message,
-                    Data = false
-                };
-
-            }
         }
     }
 }

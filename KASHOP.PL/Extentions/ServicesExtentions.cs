@@ -10,7 +10,8 @@ namespace KASHOP.PL.Extentions
         public static IServiceCollection AddServicesExtentions(this IServiceCollection Services, IConfiguration Configuration)
         {
             // Add services to the container.
-
+            Services.AddExceptionHandler<GlobalExeptionHandler>();
+            //
             Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             Services.AddOpenApi();
@@ -24,6 +25,7 @@ namespace KASHOP.PL.Extentions
             Services.AddJwtAuthenticationServices(Configuration);
             //builder.Services.AddScoped<TokenService>();
             Services.AddApplicationServices();
+            Services.AddProblemDetails();
             return Services;
         }
     }

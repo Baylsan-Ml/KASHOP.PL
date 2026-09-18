@@ -16,8 +16,7 @@ namespace KASHOP.BLL.Services.Classes
         private const long _maxFileSize = 5 *1024 * 1024; //5MB
         public async Task<Result<string>> UploadAsync(IFormFile file)
         {
-            try
-            {
+
                 if (file is null || file.Length <= 0)
                 {
                     return new Result<string>
@@ -43,8 +42,11 @@ namespace KASHOP.BLL.Services.Classes
                         Message = "File size exeeds the 5MB limit",
                     };
                 }
+
+                // Ensure the Images directory exists
                 var fileName = Guid.NewGuid().ToString() + extention;
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", file.FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot","Images", file.FileName);
+                // Create the Images directory if it doesn't exist
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
@@ -55,15 +57,6 @@ namespace KASHOP.BLL.Services.Classes
                     Message = "Success",
                     Data = fileName
                 };
-            }
-            catch (Exception ex)
-            {
-                return new Result<string>
-                {
-                    Success = false,
-                    Message = ex.InnerException.Message,
-                };
-            }
         }
     }
 }

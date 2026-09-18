@@ -34,9 +34,7 @@ namespace KASHOP.BLL.Services.Classes
         
 
         public async Task<Result<bool>> RegisterAsync(RegisterRequest request)
-        {
-            try
-            {
+        { 
                 var user = request.Adapt<ApplicationUser>();
                 var result = await _userManager.CreateAsync(user, request.Password);
                 foreach (var item in result.Errors)
@@ -66,22 +64,9 @@ namespace KASHOP.BLL.Services.Classes
                     Message = "Register Successded",
                     Data = true,
                 };
-            }
-            catch (Exception ex) 
-            {
-                return new Result<bool>
-                {
-                    Success = false,
-                    Message = ex.InnerException.Message,
-                    Data = false,
-                };
-            }
-
         }
         public async Task<Result<bool>> ConfirnmEmail(ConfirmEmailRequest request)
         {
-            try
-            {
                 var user = await _userManager.FindByIdAsync(request.UserId);
                 if (user == null)
                 {
@@ -101,21 +86,10 @@ namespace KASHOP.BLL.Services.Classes
                     Message = result.Succeeded? "Success" : "Failed To Confirm Email",
                     Data = result.Succeeded
                 }; 
-            }catch (Exception ex) 
-            {
-                return new Result<bool>
-                {
-                    Success = false,
-                    Message = ex.InnerException.Message,
-                    Data = false,
-                };
-            }
         }
 
         public async Task<Result<LoginResponse>> LoginAsync(LoginRequest request)
         {
-            try
-            {
                 var user = await _userManager.FindByEmailAsync(request.Email);
                 if (user is null)
                 {
@@ -152,16 +126,7 @@ namespace KASHOP.BLL.Services.Classes
                         AccessToken = await GenerateJWT(user)
                     },
                 };
-            }
-            catch (Exception ex)
-            {
-                return new Result<LoginResponse>
-                {
-                    Success = false,
-                    Message = ex.InnerException.Message,
-                    Data = null,
-                };
-            }
+            
         }
 
         private async Task<string> GenerateJWT(ApplicationUser user)
