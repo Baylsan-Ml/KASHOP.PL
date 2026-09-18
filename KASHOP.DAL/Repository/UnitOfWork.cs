@@ -10,15 +10,32 @@ namespace KASHOP.DAL.Repository
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
-        public ICategoryRepository CategoryRepository { get;}
+        private ICategoryRepository? _categoryRepository;
+        private IProductRepository? _productRepository;
+        public ICategoryRepository CategoryRepository { 
+            get {
+                if(_categoryRepository is null)
+                {
+                    _categoryRepository = new CategoryRepository(_context);
+                }
+                return _categoryRepository;
+            } 
+        }
 
-        public IProductRepository ProductRepository { get; }
+        public IProductRepository ProductRepository { 
+            get {
+                if(_productRepository is null)
+                {
+                    _productRepository = new ProductRepository(_context);
+                }
+                return _productRepository;
+            } 
+        }
 
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
-            CategoryRepository = new CategoryRepository(_context);
-            ProductRepository = new ProductRepository(_context);
+           
         }
         public async Task<int> CompleteAsync()
         {
