@@ -1,6 +1,9 @@
-﻿using KASHOP.BLL.Services.Interfaces;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using KASHOP.BLL.Services.Interfaces;
 using KASHOP.DAL.DTO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -14,10 +17,21 @@ namespace KASHOP.BLL.Services.Classes
     {
         private readonly string[] _AllowedExtentions = { ".jpg", ".png", ".webp", ".jpeg", ".svg" };
         private const long _maxFileSize = 5 *1024 * 1024; //5MB
+        private readonly Cloudinary _cloudinary;
+
+        public FileService(IConfiguration configuration)
+        {
+            var Account = new Account(
+                configuration["CloudinarySettings:CloudName"],
+                configuration["CloudinarySettings:ApiKey"],
+                configuration["CloudinarySettings:ApiSecret"]
+            );
+            _cloudinary = new Cloudinary(Account);
+        }
         public async Task<Result<string>> UploadAsync(IFormFile file)
         {
 
-                if (file is null || file.Length <= 0)
+                if (file is null || file.Length == 0)
                 {
                     return new Result<string>
                     {
@@ -43,8 +57,33 @@ namespace KASHOP.BLL.Services.Classes
                     };
                 }
 
-                // Ensure the Images directory exists
-                var fileName = Guid.NewGuid().ToString() + extention;
+               using(var stream = file.OpenReadStream())
+            {
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = "KASHOP"
+                };
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if(uploadResult.Error != null)
+                {
+                    return new Result<string>
+                    {
+                        Success = false,
+                        Message = uploadResult.Error.Message,
+                    };
+                }
+                    return new Result<string>
+                    {
+                        Success = true,
+                        Message = "File uploaded successfully",
+                        Data = uploadResult.SecureUrl.ToString()
+                    };
+            }
+
+            // Ensure the Images directory exists
+            var fileName = Guid.NewGuid().ToString() + extention;
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot","Images", file.FileName);
                 // Create the Images directory if it doesn't exist
                 using (var stream = new FileStream(filePath, FileMode.Create))
