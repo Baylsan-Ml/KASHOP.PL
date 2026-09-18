@@ -15,6 +15,6 @@ namespace KASHOP.BLL.Services.Interfaces
         Task<Result<List<ProductResponse>>>GetAllProductsAsync();
         Task<Result<ProductResponse>> GetProductAsyns(Expression<Func<Product, bool>> filter);
         Task<Result<ProductResponse>> UpdateProductAsync(int id, ProductRequest request);
-        Task<Result<bool>> DeleteProductAsync(int id);
+        Task<Result<bool>> DeleteProduct(int id);
     }
 }

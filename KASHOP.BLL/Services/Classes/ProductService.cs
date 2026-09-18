@@ -3,6 +3,7 @@ using KASHOP.DAL.DTO;
 using KASHOP.DAL.Models;
 using KASHOP.DAL.Repository;
 using Mapster;
+using Microsoft.AspNetCore.Http.HttpResults;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -43,8 +44,9 @@ namespace KASHOP.BLL.Services.Classes
                     //};
                 }
                 var product = request.Adapt<Product>();
-                product.MainImage = UploadResult.Data;
-                await _unitOfWork.ProductRepository.CreateAsync(product);
+                product.MainImage = UploadResult.Data.Url;
+                product.MainImagePublicId = UploadResult.Data.PublicId;
+            await _unitOfWork.ProductRepository.CreateAsync(product);
                 await _unitOfWork.CompleteAsync();
 
             return Result<ProductResponse>.Ok(product.Adapt<ProductResponse>());
@@ -79,27 +81,22 @@ namespace KASHOP.BLL.Services.Classes
                 };
         }
 
-        public async Task<Result<bool>> DeleteProductAsync(int id)
+       
+
+        public async Task<Result<bool>> DeleteProduct(int id)
         {
-
             var product = await _unitOfWork.ProductRepository.GetOne(p => p.Id == id);
-
-            if (product == null)
-            {
-                return new Result<bool>
-                {
-                    Success = false,
-                    Message = "Could Not Delete",
-                    Data = false
-                };
-            }
+            if(product is null)
+                return Result<bool>.Fail("Product Not Found :(");
+            
+            var deleteImageResult = await _FileService.Delete(product.MainImagePublicId);
+            if(!deleteImageResult.Success)
+                return Result<bool>.Fail(deleteImageResult.Message);
+            
             _unitOfWork.ProductRepository.Delete(product);
             var affectedRows = await _unitOfWork.CompleteAsync();
-            return new Result<bool>
-            {
-                Success = affectedRows > 0,
-                Message = affectedRows > 0 ? "Success" : "Failed to Delete Product",
-            };
+            return affectedRows > 0? Result<bool>.Ok(true, "Product Deleted Successfully!") : Result<bool>.Fail("Failed to Delete Product");
+
         }
     }
 }

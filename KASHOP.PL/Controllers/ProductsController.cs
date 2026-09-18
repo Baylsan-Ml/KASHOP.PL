@@ -48,9 +48,10 @@ namespace KASHOP.PL.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _productService.DeleteProductAsync(id);
+            var result = await _productService.DeleteProduct(id);
             return result.Success ? Ok(result) : BadRequest(result);
 
         }
