@@ -19,6 +19,8 @@ namespace KASHOP.PL.Extentions
             Services.AddScoped<IISeedData, RoleSeedData>();
             Services.AddTransient<IEmailSender, EmailSender>();
             Services.AddHttpContextAccessor();
+
+            Services.AddProblemDetails();
             return Services;
         }
     }
