@@ -2,6 +2,8 @@
 using KASHOP.DAL.DTO;
 using KASHOP.DAL.Models;
 using KASHOP.DAL.Repository;
+using Mapster;
+using Microsoft.AspNetCore.Http.HttpResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,5 +53,16 @@ namespace KASHOP.BLL.Services.Classes
             return Result<bool>.Ok(true);
         }
 
+        public async Task<Result<List<CartItemResponse>>> GetCart(string userId)
+        {
+            var userCartItem = await _unitOfWork.CartRepository.GetAllAsync(
+                filter: filter => filter.UserId == userId,
+                includes: new string[] {nameof(CartItem.Product)}
+                );
+
+            var response = userCartItem.Adapt<List<CartItemResponse>>();
+
+            return Result<List<CartItemResponse>>.Ok(response);
+        }
     }
 }

@@ -10,5 +10,6 @@ namespace KASHOP.BLL.Services.Interfaces
     public interface ICartService
     {
         Task<Result<bool>> AddToCart(string userId, CartItemRequest request);
+        Task<Result<List<CartItemResponse>>> GetCart(string userId);
     }
 }

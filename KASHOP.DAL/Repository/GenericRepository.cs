@@ -27,15 +27,19 @@ namespace KASHOP.DAL.Repository
         }
 
        
-        public async Task<List<T>> GetAllAsync(string[]? includes = null)
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string[]? includes = null)
         {
             IQueryable<T> query = _context.Set<T>();
-            if (includes != null)
+            if (includes is not null)
             {
                 foreach (var include in includes)
                 {
                     query = query.Include(include);
                 }
+            }
+            if(filter is not null)
+            {
+                query = query.Where(filter);
             }
             return await query.ToListAsync();
         }

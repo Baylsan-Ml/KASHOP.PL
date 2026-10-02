@@ -37,7 +37,7 @@ namespace KASHOP.BLL.Services.Classes
         {
 
                 var lang = CultureInfo.CurrentUICulture.Name;
-                var categories = await _unitOfWork.CategoryRepository.GetAllAsync(
+                var categories = await _unitOfWork.CategoryRepository.GetAllAsync( null,
                     new string[] { nameof(Category.Translations), "CreatedBy" }
                     );
                 return new Result<List<CategoryResponse>> {
