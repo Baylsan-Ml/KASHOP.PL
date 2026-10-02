@@ -20,6 +20,8 @@ namespace KASHOP.DAL.Data
         public DbSet<ProductTranslation> ProductTranslations { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Item> Items { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         private readonly IHttpContextAccessor _httpContextAccessor;
 
