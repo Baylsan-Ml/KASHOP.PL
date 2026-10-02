@@ -38,6 +38,24 @@ namespace KASHOP.PL.Controllers
 
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteItem([FromRoute] int id)
+        {
+            var result = await _cartService.RemoveFromCart(CurrentUserId, id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateItem([FromRoute] int id, [FromBody] CartItemRequest request)
+        {
+            var result = await _cartService.UpdateCartItem(CurrentUserId, id, request.Count);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+        [HttpDelete("clear")]
+        public async Task<IActionResult> ClearCart()
+        {
+            var result = await _cartService.ClearCart(CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
 
     }
 }

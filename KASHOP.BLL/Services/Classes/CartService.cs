@@ -57,12 +57,59 @@ namespace KASHOP.BLL.Services.Classes
         {
             var userCartItem = await _unitOfWork.CartRepository.GetAllAsync(
                 filter: filter => filter.UserId == userId,
-                includes: new string[] {nameof(CartItem.Product)}
+                includes: new string[] {nameof(CartItem.Product), $"{nameof(CartItem.Product)}.{nameof(Product.Translations)}"  }
                 );
 
             var response = userCartItem.Adapt<List<CartItemResponse>>();
 
             return Result<List<CartItemResponse>>.Ok(response);
+        }
+
+        public async Task<Result<bool>> RemoveFromCart(string userId, int productId)
+        {
+            var cartItem = await _unitOfWork.CartRepository.GetOne(
+                c => c.UserId == userId && c.ProductId == productId);
+            if(cartItem is null)
+            {
+                return Result<bool>.Fail("Cart item not found");
+            }
+            _unitOfWork.CartRepository.Delete(cartItem);
+            var affectedRows = await _unitOfWork.CompleteAsync();
+            return affectedRows > 0 ? Result<bool>.Ok(true, "Item removed from cart successfully") : Result<bool>.Fail("Failed to remove item from cart");
+        }
+
+        public async Task<Result<bool>> UpdateCartItem(string userId, int productId, int count)
+        {
+            if(count < 0)
+                return Result<bool>.Fail("Count must be greater than zero");
+
+            var cartItem = await _unitOfWork.CartRepository.GetOne(
+               filter: c => c.UserId == userId && c.ProductId == productId,
+                includes: new string[] { nameof(CartItem.Product) }
+                );
+
+            if (cartItem.Product.Quantity < count)
+                return Result<bool>.Fail("Not enough stock available");
+
+            cartItem.Count = count;
+
+            var affectedRows = await _unitOfWork.CompleteAsync();
+            return affectedRows > 0 ? Result<bool>.Ok(true, "Item updated in cart successfully") : Result<bool>.Fail("Failed to update item in cart");
+        }
+
+        public async Task<Result<bool>> ClearCart(string userId)
+        {
+            var cartItems = await _unitOfWork.CartRepository.GetAllAsync(c => c.UserId == userId);
+            if(cartItems is null || !cartItems.Any())
+            {
+                return Result<bool>.Fail("Cart is already empty");
+            }
+            foreach (var item in cartItems)
+            {
+                _unitOfWork.CartRepository.Delete(item);
+            }
+            var affectedRows = await _unitOfWork.CompleteAsync();
+            return affectedRows > 0 ? Result<bool>.Ok(true, "Cart cleared successfully") : Result<bool>.Fail("Failed to clear cart");
         }
     }
 }
