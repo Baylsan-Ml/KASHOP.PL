@@ -50,7 +50,7 @@ namespace KASHOP.PL.Controllers
             var result = await _cartService.UpdateCartItem(CurrentUserId, id, request.Count);
             return result.Success ? Ok(result) : BadRequest(result);
         }
-        [HttpDelete("clear")]
+        [HttpDelete("")]
         public async Task<IActionResult> ClearCart()
         {
             var result = await _cartService.ClearCart(CurrentUserId);
