@@ -7,7 +7,7 @@ namespace KASHOP.PL.Extentions
 {
     public static class ServicesExtentions
     {
-        public static IServiceCollection AddServicesExtentions(this IServiceCollection Services, IConfiguration Configuration)
+        public static IServiceCollection AddApplicationServices(this IServiceCollection Services, IConfiguration Configuration)
         {
             // Add services to the container.
             Services.AddExceptionHandler<GlobalExeptionHandler>();
@@ -24,7 +24,9 @@ namespace KASHOP.PL.Extentions
             //JWT Extention Method to add jwt auth services and configuration
             Services.AddJwtAuthenticationServices(Configuration);
             //builder.Services.AddScoped<TokenService>();
-            Services.AddApplicationServices();
+
+            Services.AddBusinessServices(Configuration);
+
             Services.AddProblemDetails();
             return Services;
         }

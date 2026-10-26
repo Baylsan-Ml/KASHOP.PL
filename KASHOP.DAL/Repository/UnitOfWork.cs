@@ -13,6 +13,7 @@ namespace KASHOP.DAL.Repository
         private ICategoryRepository? _categoryRepository;
         private IProductRepository? _productRepository;
         private ICartRepository? _cartRepository;
+        private IOrderRepository? _orderRepository;
         public ICategoryRepository CategoryRepository { 
             get {
                 if(_categoryRepository is null)
@@ -40,6 +41,18 @@ namespace KASHOP.DAL.Repository
                     _cartRepository = new CartRepository(_context);
                 }
                 return _cartRepository;
+            }
+        }
+
+        public IOrderRepository OrderRepository
+        {
+            get
+            {
+                if (_orderRepository is null)
+                {
+                    _orderRepository = new OrderRepository(_context);
+                }
+                return _orderRepository;
             }
         }
 

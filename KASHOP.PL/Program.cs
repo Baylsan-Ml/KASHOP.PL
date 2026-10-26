@@ -27,7 +27,7 @@ namespace KASHOP.PL
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddServicesExtentions(builder.Configuration);
+            builder.Services.AddApplicationServices(builder.Configuration);
 
             var app = builder.Build();
             app.UseExceptionHandler();
