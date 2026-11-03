@@ -34,6 +34,9 @@ namespace KASHOP.BLL.Mapping
                 .Map(dest => dest.Price, src => src.Product.Price)
                 .Map(dest => dest.MainImage, src => src.Product.MainImage);
 
+            //Order mapping
+            TypeAdapterConfig<Order, OrderSummaryResponse>.NewConfig()
+                .Map(dest => dest.ItemsCount, src => src.OrderItems.Sum(i => i.Count));
 
         }
     }

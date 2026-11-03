@@ -12,9 +12,11 @@ namespace KASHOP.PL.Controllers
     public class OrdersController : BaseApiController
     {
         private readonly ICheckoutService _checkoutService;
-        public OrdersController(ICheckoutService checkoutService)
+        private readonly IOrderService _orderService;
+        public OrdersController(ICheckoutService checkoutService, IOrderService orderService)
         {
             _checkoutService = checkoutService;
+            _orderService = orderService;
         }
 
         [HttpPost("checkout")]
@@ -37,5 +39,12 @@ namespace KASHOP.PL.Controllers
             var result = await _checkoutService.HandleSuccess(sessionId);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("")]
+        public async Task<IActionResult> GetOrders()
+        {
+            var result = await _orderService.GetUserOrdersAsync(CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
     }
 }

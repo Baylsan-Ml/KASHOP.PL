@@ -7,6 +7,7 @@ using Stripe;
 using CheckoutService = KASHOP.BLL.Services.Classes.CheckoutService;
 using FileService = KASHOP.BLL.Services.Classes.FileService;
 using ProductService = KASHOP.BLL.Services.Classes.ProductService;
+using OrderService = KASHOP.BLL.Services.Classes.OrderService;
 
 namespace KASHOP.PL.Extentions
 {
@@ -20,6 +21,7 @@ namespace KASHOP.PL.Extentions
             Services.AddScoped<IProductService, ProductService>();
             Services.AddScoped<ICartService, CartService>();
             Services.AddScoped<ICheckoutService, CheckoutService>();
+            Services.AddScoped<IOrderService, OrderService>();
             Services.AddScoped<IFileService, FileService>();
             Services.AddScoped<IAuthenticationService, AuthenticationService>();
             Services.AddScoped<IISeedData, RoleSeedData>();
