@@ -23,5 +23,19 @@ namespace KASHOP.PL.Controllers
             var result = await _checkoutService.Checkout(CurrentUserId, request);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("payment/success")]
+        [AllowAnonymous]
+        public async Task<IActionResult> PaymentSuccess(string sessionId)
+        {
+            var result = await _checkoutService.HandleSuccess(sessionId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+        [HttpGet("payment/cancel")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Cancel(string sessionId)
+        {
+            var result = await _checkoutService.HandleSuccess(sessionId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

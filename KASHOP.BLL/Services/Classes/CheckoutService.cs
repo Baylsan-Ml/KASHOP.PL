@@ -3,6 +3,7 @@ using KASHOP.DAL.DTO;
 using KASHOP.DAL.Models;
 using KASHOP.DAL.Repository;
 using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Stripe.Checkout;
 using System;
@@ -17,11 +18,13 @@ namespace KASHOP.BLL.Services.Classes
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CheckoutService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
+        public CheckoutService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<Result<OrderResponse>> Checkout(string userId, CheckoutRequest request)
         {
@@ -29,7 +32,7 @@ namespace KASHOP.BLL.Services.Classes
                 filter: c => c.UserId == userId,
                 includes: new string[]
                 {  nameof(CartItem.Product),
-                   "Product.Translations" }
+                   $"{nameof(CartItem.Product)}.{nameof(Product.Translations)}" }
             );
 
             if(!cartItems.Any())
@@ -86,8 +89,60 @@ namespace KASHOP.BLL.Services.Classes
                 await PlaceVisaOrderAsync(order, cartItems);
         }
 
+        public async Task<Result<OrderResponse>> HandleSuccess(string sessionId)
+        {
+            var order = await _unitOfWork.OrderRepository.GetOne(
+                filter: o => o.StripeSessionId == sessionId,
+                includes: new []
+                {
+                    nameof(Order.OrderItems),
+                    $"{nameof(Order.OrderItems)}.{nameof(OrderItem.Product)}"
+                }
+            );
+
+            if(order.PaymentStatus == DAL.Enums.PaymentStatus.Paid)
+            {
+                return Result<OrderResponse>.Fail("Order is already paid");
+            }
+            if(order.PaymentStatus == DAL.Enums.PaymentStatus.Failed)
+            {
+                return Result<OrderResponse>.Fail("Order is already failed");
+            }
+
+            var session= await new SessionService().GetAsync(sessionId);
+
+            if(session.PaymentStatus != "paid")
+            {
+                return Result<OrderResponse>.Fail("Payment is not completed");
+            }
+            
+            order.Status = DAL.Enums.OrderStatusEnum.Confirmed;
+            order.PaymentStatus = DAL.Enums.PaymentStatus.Paid;
+            order.AmountPaid = session.AmountTotal;
+            order.PaidAt = DateTime.UtcNow;
+            order.PaymentIntentId = session.PaymentIntentId;
+
+            foreach(var item in order.OrderItems)
+            {
+                item.Product.Quantity -= item.Count;
+            }
+
+            var cartItems = await _unitOfWork.CartRepository.GetAllAsync(
+                filter: c => c.UserId == order.UserId
+            );
+            foreach(var item in cartItems)
+            {
+                _unitOfWork.CartRepository.Delete(item);
+            }
+            await _unitOfWork.CompleteAsync();
+            
+            return Result<OrderResponse>.Ok(order.Adapt<OrderResponse>(), "Order payment successful");
+        }
         private async Task<Result<OrderResponse>> PlaceVisaOrderAsync(Order order, List<CartItem> cartItems)
         {
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
             var options = new SessionCreateOptions
             {
                 Mode = "payment",
@@ -105,8 +160,9 @@ namespace KASHOP.BLL.Services.Classes
                     },
                 }).ToList(),
 
-                SuccessUrl = $"/checkout/success",
-                CancelUrl = $"/checkout/cancel",
+                SuccessUrl = $"{baseUrl}/api/orders/payment/success?sessionId={{CHECKOUT_SESSION_ID}}",
+                ExpiresAt= DateTime.UtcNow.AddHours(1),
+                CancelUrl = $"{baseUrl}/api/orders/payment/cancel?sessionId={{CHECKOUT_SESSION_ID}}",
             };
             
             var service = new SessionService();
@@ -132,5 +188,7 @@ namespace KASHOP.BLL.Services.Classes
             await _unitOfWork.CompleteAsync();
             return Result<OrderResponse>.Ok(order.Adapt<OrderResponse>(), "Order Created Successfully");
         }
+
+       
     }
 }
