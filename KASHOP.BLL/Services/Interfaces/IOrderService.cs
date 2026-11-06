@@ -1,4 +1,5 @@
 ﻿using KASHOP.DAL.DTO;
+using KASHOP.DAL.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace KASHOP.BLL.Services.Interfaces
     {
         Task<Result<List<OrderSummaryResponse>>> GetUserOrdersAsync(string userId);
         Task<Result<OrderDetailsResponse>> GetUserOrderDetailsAsync(int orderId, string userId);
+        Task<Result<List<OrderSummaryResponse>>> GetAllOrdersAsync(OrderStatusEnum? status);
+
     }
 }

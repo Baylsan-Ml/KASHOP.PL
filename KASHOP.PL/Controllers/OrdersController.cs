@@ -1,5 +1,6 @@
 ﻿using KASHOP.BLL.Services.Interfaces;
 using KASHOP.DAL.DTO;
+using KASHOP.DAL.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -40,9 +41,24 @@ namespace KASHOP.PL.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
         [HttpGet("")]
-        public async Task<IActionResult> GetOrders()
+        public async Task<IActionResult> GetMyOrders()
         {
             var result = await _orderService.GetUserOrdersAsync(CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetMyOrderDetails(int id)
+        {
+            var result = await _orderService.GetUserOrderDetailsAsync(id, CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // Admin 
+        [HttpGet("admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllOrders([FromQuery] OrderStatusEnum? status = OrderStatusEnum.Pending)
+        {
+            var result = await _orderService.GetAllOrdersAsync(status);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 

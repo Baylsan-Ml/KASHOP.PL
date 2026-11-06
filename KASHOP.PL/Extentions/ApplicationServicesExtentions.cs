@@ -25,6 +25,7 @@ namespace KASHOP.PL.Extentions
             Services.AddScoped<IFileService, FileService>();
             Services.AddScoped<IAuthenticationService, AuthenticationService>();
             Services.AddScoped<IISeedData, RoleSeedData>();
+            Services.AddScoped<IISeedData, UserSeedData>();
             Services.AddTransient<IEmailSender, EmailSender>();
             Services.AddHttpContextAccessor();
 

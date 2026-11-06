@@ -1,5 +1,6 @@
 ﻿using KASHOP.BLL.Services.Interfaces;
 using KASHOP.DAL.DTO;
+using KASHOP.DAL.Enums;
 using KASHOP.DAL.Models;
 using KASHOP.DAL.Repository;
 using Mapster;
@@ -31,9 +32,21 @@ namespace KASHOP.BLL.Services.Classes
         }
 
 
-        public Task<Result<OrderDetailsResponse>> GetUserOrderDetailsAsync(int orderId, string userId)
+        public async Task<Result<OrderDetailsResponse>> GetUserOrderDetailsAsync(int orderId, string userId)
         {
-            throw new NotImplementedException();
+            var order = await _unitOfWork.OrderRepository.GetOne(
+                filter: o => o.Id == orderId && o.UserId == userId);
+            return Result<OrderDetailsResponse>.Ok(order.Adapt<OrderDetailsResponse>());
+        }
+
+        public Task<Result<List<OrderSummaryResponse>>> GetAllOrdersAsync(OrderStatusEnum? status)
+        {
+            var orders = _unitOfWork.OrderRepository.GetAllAsync(
+                filter: o => o.Status == null || o.Status == status);
+
+            var response = orders.Result.OrderByDescending(o => o.OrderDate).Adapt<List<OrderSummaryResponse>>();
+
+            return Task.FromResult(Result<List<OrderSummaryResponse>>.Ok(response));
         }
     }
 }
