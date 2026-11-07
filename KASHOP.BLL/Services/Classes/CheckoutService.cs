@@ -63,7 +63,7 @@ namespace KASHOP.BLL.Services.Classes
                 UserId = userId,
                 PaymentMethod = request.PaymentMethod,
                 Status = DAL.Enums.OrderStatusEnum.Pending,
-                PaymentStatus = DAL.Enums.PaymentStatus.Pending,
+                PaymentStatus = DAL.Enums.PaymentStatusEnum.Pending,
                 City = city,
                 Street = street,
                 PhoneNumber = phoneNumber,
@@ -100,11 +100,11 @@ namespace KASHOP.BLL.Services.Classes
                 }
             );
 
-            if(order.PaymentStatus == DAL.Enums.PaymentStatus.Paid)
+            if(order.PaymentStatus == DAL.Enums.PaymentStatusEnum.Paid)
             {
                 return Result<OrderResponse>.Fail("Order is already paid");
             }
-            if(order.PaymentStatus == DAL.Enums.PaymentStatus.Failed)
+            if(order.PaymentStatus == DAL.Enums.PaymentStatusEnum.Failed)
             {
                 return Result<OrderResponse>.Fail("Order is already failed");
             }
@@ -117,7 +117,7 @@ namespace KASHOP.BLL.Services.Classes
             }
             
             order.Status = DAL.Enums.OrderStatusEnum.Confirmed;
-            order.PaymentStatus = DAL.Enums.PaymentStatus.Paid;
+            order.PaymentStatus = DAL.Enums.PaymentStatusEnum.Paid;
             order.AmountPaid = session.AmountTotal;
             order.PaidAt = DateTime.UtcNow;
             order.PaymentIntentId = session.PaymentIntentId;

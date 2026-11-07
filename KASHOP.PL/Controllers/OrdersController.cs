@@ -55,12 +55,18 @@ namespace KASHOP.PL.Controllers
 
         // Admin 
         [HttpGet("admin")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, SuperAdmin")]
         public async Task<IActionResult> GetAllOrders([FromQuery] OrderStatusEnum? status = OrderStatusEnum.Pending)
         {
             var result = await _orderService.GetAllOrdersAsync(status);
             return result.Success ? Ok(result) : BadRequest(result);
         }
-
+        [HttpPatch("admin/{id}/status")]
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        public async Task<IActionResult> ChangeStatus([FromRoute] int id, [FromBody] ChangeOrderStatusRequest request)
+        {
+            var result = await _orderService.ChangeStatusAsync(id, request.Status);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

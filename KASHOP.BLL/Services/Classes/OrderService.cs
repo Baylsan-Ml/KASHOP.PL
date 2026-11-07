@@ -48,5 +48,55 @@ namespace KASHOP.BLL.Services.Classes
 
             return Task.FromResult(Result<List<OrderSummaryResponse>>.Ok(response));
         }
+
+        public async Task<Result<OrderDetailsResponse>> ChangeStatusAsync(int orderId ,OrderStatusEnum newStatus)
+        {
+            var order = await _unitOfWork.OrderRepository.GetOne(
+                filter: o=> o.Id == orderId
+                );
+            if (order == null) return Result<OrderDetailsResponse>.Fail("Oreder not found!");
+
+            if(order.Status == newStatus) return Result<OrderDetailsResponse>.Fail($"Oreder id already {newStatus}");
+
+            if(order.PaymentMethod == PaymentMethodEnum.visa && order.PaymentStatus != PaymentStatusEnum.Paid)
+            {
+                return Result<OrderDetailsResponse>.Fail($"Order is not paid yet");
+            }
+
+            //pending => confirmed => preparing => deliverd
+
+            bool IsAllowed = false;
+
+            if(order.Status == OrderStatusEnum.Pending && newStatus == OrderStatusEnum.Confirmed)
+            {
+                IsAllowed = true;
+            }
+            if (order.Status == OrderStatusEnum.Confirmed && newStatus == OrderStatusEnum.Preparing)
+            {
+                IsAllowed = true;
+            }
+            if (order.Status == OrderStatusEnum.Preparing && newStatus == OrderStatusEnum.Delivered)
+            {
+                IsAllowed = true;
+            }
+            if(!IsAllowed) return Result<OrderDetailsResponse>.Fail($"Can't change status from {order.Status} to {newStatus}");
+
+            order.Status = newStatus;
+
+            if(newStatus == OrderStatusEnum.Delivered)
+            {
+                order.ShippedDate = DateTime.Now;
+                if(order.PaymentMethod == PaymentMethodEnum.Cash)
+                {
+                    order.PaymentStatus = PaymentStatusEnum.Paid;
+                    order.AmountPaid = order.TotalAmount;
+                    order.PaidAt = DateTime.Now;
+                }
+            }
+
+            await _unitOfWork.CompleteAsync();
+            return Result<OrderDetailsResponse>.Ok(order.Adapt<OrderDetailsResponse>());
+
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace KASHOP.DAL.DTO
     {
         public int Id { get; set; }
         public DateTime OrderDate { get; set; } 
-        public PaymentStatus PaymentStatus { get; set; } 
+        public PaymentStatusEnum PaymentStatus { get; set; } 
         public OrderStatusEnum OrderStatus { get; set; }
         public PaymentMethodEnum PaymentMethod { get; set; }
         public decimal? TotalAmount { get; set; }

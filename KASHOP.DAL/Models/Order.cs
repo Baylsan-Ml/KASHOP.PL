@@ -12,7 +12,7 @@ namespace KASHOP.DAL.Models
         public int Id { get; set; }
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
         public OrderStatusEnum Status { get; set; } = OrderStatusEnum.Pending;
-        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
+        public PaymentStatusEnum PaymentStatus { get; set; } = PaymentStatusEnum.Pending;
         public PaymentMethodEnum PaymentMethod { get; set; }
         public DateTime? ShippedDate { get; set; }
         public decimal? AmountPaid { get; set; }

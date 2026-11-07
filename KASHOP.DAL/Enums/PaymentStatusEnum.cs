@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KASHOP.DAL.Enums
 {
-    public enum PaymentStatus
+    public enum PaymentStatusEnum
     {
         Pending = 1,
         Paid = 2,
