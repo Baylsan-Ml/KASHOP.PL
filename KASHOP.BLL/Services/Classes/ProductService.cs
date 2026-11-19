@@ -52,7 +52,7 @@ namespace KASHOP.BLL.Services.Classes
 
             return Result<ProductResponse>.Ok(product.Adapt<ProductResponse>());
         }
-        public async Task<Result<PaginationResponse<ProductResponse>>> GetAllProductsAsync(PaginationRequest request)
+        public async Task<Result<PaginationResponse<ProductResponse>>> GetAllProductsAsync(ProductQueryRequest request)
         {
                 var query =  _unitOfWork.ProductRepository.GetQueryable(null,
                     new string[] { nameof(Product.Translations), nameof(Product.Category) });
@@ -60,6 +60,21 @@ namespace KASHOP.BLL.Services.Classes
             if (string.IsNullOrWhiteSpace(request.Search))
             {
                 query = query.Where(p => p.Translations.Any(t => t.Name.Contains(request.Search)));
+            }
+            //ordering the prod by category
+            if (request.CategotyId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == request.CategotyId.Value);
+            }
+            //ordering the prod by price
+            if (request.MinPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= request.MinPrice.Value);
+            }
+      
+            if(request.MaxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= request.MaxPrice.Value);
             }
             //ordering the prod
             query = query.OrderBy(p => p.Id);

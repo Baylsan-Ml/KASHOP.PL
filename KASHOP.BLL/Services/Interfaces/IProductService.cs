@@ -12,7 +12,7 @@ namespace KASHOP.BLL.Services.Interfaces
     public interface IProductService
     {
         Task<Result<ProductResponse>> CreateProductAsync(ProductRequest request);
-        Task<Result<PaginationResponse<ProductResponse>>> GetAllProductsAsync(PaginationRequest request);
+        Task<Result<PaginationResponse<ProductResponse>>> GetAllProductsAsync(ProductQueryRequest request);
         Task<Result<ProductResponse>> GetProductAsyns(Expression<Func<Product, bool>> filter);
         Task<Result<ProductResponse>> UpdateProductAsync(int id, ProductRequest request);
         Task<Result<bool>> DeleteProduct(int id);
