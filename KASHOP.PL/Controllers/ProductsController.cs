@@ -30,9 +30,9 @@ namespace KASHOP.PL.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
         [HttpGet("")]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetAllProducts([FromQuery] PaginationRequest request)
         {
-            var result = await _productService.GetAllProductsAsync();
+            var result = await _productService.GetAllProductsAsync(request);
             return result.Success ? Ok(result) : BadRequest(result);
         }
         [HttpGet("{id}")]

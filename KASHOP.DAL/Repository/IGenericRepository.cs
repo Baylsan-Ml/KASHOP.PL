@@ -15,5 +15,6 @@ namespace KASHOP.DAL.Repository
         Task <T> GetOne(Expression<Func<T,bool>> filter, string[]? includes = null);
         Task<T> UpdateAsync(T entity);
         void Delete(T entity);
+        IQueryable<T> GetQueryable(Expression<Func<T, bool>>? filter = null, string[]? includes = null);
     }
 }

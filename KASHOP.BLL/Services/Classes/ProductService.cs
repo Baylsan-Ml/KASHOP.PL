@@ -1,4 +1,5 @@
-﻿using KASHOP.BLL.Services.Interfaces;
+﻿using KASHOP.BLL.Extentions;
+using KASHOP.BLL.Services.Interfaces;
 using KASHOP.DAL.DTO;
 using KASHOP.DAL.Models;
 using KASHOP.DAL.Repository;
@@ -51,11 +52,26 @@ namespace KASHOP.BLL.Services.Classes
 
             return Result<ProductResponse>.Ok(product.Adapt<ProductResponse>());
         }
-        public async Task<Result<List<ProductResponse>>> GetAllProductsAsync()
+        public async Task<Result<PaginationResponse<ProductResponse>>> GetAllProductsAsync(PaginationRequest request)
         {
-                var products = await _unitOfWork.ProductRepository.GetAllAsync(null,
+                var query =  _unitOfWork.ProductRepository.GetQueryable(null,
                     new string[] { nameof(Product.Translations), nameof(Product.Category) });
-                return Result<List<ProductResponse>>.Ok(products.Adapt<List<ProductResponse>>(), "Success!");
+            //If the user is searching for any prod
+            if (string.IsNullOrWhiteSpace(request.Search))
+            {
+                query = query.Where(p => p.Translations.Any(t => t.Name.Contains(request.Search)));
+            }
+            //ordering the prod
+            query = query.OrderBy(p => p.Id);
+            //Result
+            var result = await query.ToPaginationAsync(request.Page, request.Limit);
+
+            return new Result<PaginationResponse<ProductResponse>>
+            {
+                Success =true,
+                Message = "Success!",
+                Data = result.Adapt<PaginationResponse<ProductResponse>>()
+            };
 
         }
 
