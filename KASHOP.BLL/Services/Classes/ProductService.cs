@@ -57,7 +57,7 @@ namespace KASHOP.BLL.Services.Classes
                 var query =  _unitOfWork.ProductRepository.GetQueryable(null,
                     new string[] { nameof(Product.Translations), nameof(Product.Category) });
             //If the user is searching for any prod
-            if (string.IsNullOrWhiteSpace(request.Search))
+            if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 query = query.Where(p => p.Translations.Any(t => t.Name.Contains(request.Search)));
             }
@@ -76,8 +76,32 @@ namespace KASHOP.BLL.Services.Classes
             {
                 query = query.Where(p => p.Price <= request.MaxPrice.Value);
             }
-            //ordering the prod
-            query = query.OrderBy(p => p.Id);
+            //sorting the prod
+            var sortBy = request.SortBy?.ToLower();
+            var language = CultureInfo.CurrentUICulture.Name;
+
+            if(sortBy == "price")
+            {
+                query = request.Descending == true ? 
+                    query.OrderByDescending(p => p.Price)
+                    : query.OrderBy(p => p.Price);
+            }else if(sortBy == "rate")
+            {
+                query = request.Descending == true ?
+                   query.OrderByDescending(p => p.Rate)
+                   : query.OrderBy(p => p.Rate);
+            }else if(sortBy == "name")
+            {
+                query = request.Descending == true ?
+                    query.OrderByDescending(p => p.Translations.Where(t => t.Language == language).Select(t => t.Name).FirstOrDefault())
+                    :
+                     query.OrderBy(p => p.Translations.Where(t => t.Language == language).Select(t => t.Name).FirstOrDefault());
+            }
+            else
+            {
+                query = request.Descending == true ? query.OrderByDescending(p => p.Id)
+                    : query.OrderBy(p => p.Id);
+            }
             //Result
             var result = await query.ToPaginationAsync(request.Page, request.Limit);
 
